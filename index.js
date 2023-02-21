@@ -38,6 +38,11 @@ inquirer.prompt([
     ]
   },
   {
+      type: 'input',
+      name: 'walkthrough',
+      message: "What is the URL for your project walkthrough video?",
+    },
+  {
     type: 'input',
     name: 'contributing',
     message: 'Please provide contribution guidelines for your project:'
@@ -70,6 +75,7 @@ ${answers.description}
 - [Installation](#installation)
 - [Usage](#usage)
 - [License](#license)
+- [WalkthroughVideo](#walkthrough)
 - [Contributing](#contributing)
 - [Tests](#tests)
 - [Questions](#questions)
@@ -83,6 +89,9 @@ ${answers.usage}
 ## License
 ${answers.licenseBadge}  
 This application is covered under the ${answers.license} license.
+
+## Walkthrough Video
+${answers.walkthrough}
 
 ## Contributing
 ${answers.contributing}
