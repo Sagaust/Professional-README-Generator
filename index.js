@@ -1,6 +1,9 @@
-/*
 const inquirer = require('inquirer');
+const util = require('util');
+const fs = require('fs');
+const writeFileAsync = util.promisify(fs.writeFile);
 
+const promptUser = () => 
 inquirer.prompt([
   {
     type: 'input',
@@ -54,62 +57,48 @@ inquirer.prompt([
     name: 'email',
     message: 'What is your email address?'
   }
-]).then(answers => {
-  console.log(answers);
-});
+]);
 
+const generateMarkdown = (answers) => {
+  return `
+# ${answers.title}
 
-// function to write README file
-function writeToFile(fileName, data) {
-}
+## Description
+${answers.description}
 
-// function to initialize program
-function init() {
+## Table of Contents
+- [Installation](#installation)
+- [Usage](#usage)
+- [License](#license)
+- [Contributing](#contributing)
+- [Tests](#tests)
+- [Questions](#questions)
 
-}
+## Installation
+${answers.installation}
 
-// function call to initialize program
-init();
+## Usage
+${answers.usage}
 
-*/
+## License
+${answers.licenseBadge}  
+This application is covered under the ${answers.license} license.
 
-const fs = require('fs');
-const path = require('path');
-const { promisify } = require('util');
-const ejs = require('ejs');
-const marked = require('marked');
-const matter = require('gray-matter');
-const createBadge = require('./createBadge');
+## Contributing
+${answers.contributing}
 
-const readFile = promisify(fs.readFile);
-const writeFile = promisify(fs.writeFile);
+## Tests
+${answers.tests}
 
-async function createReadme(answers) {
-  // Load the README template file
-  const templateFile = path.join(__dirname, 'templates', 'README.md.ejs');
-  const templateContent = await readFile(templateFile, 'utf8');
+## Questions
+For any questions, please contact ${answers.email}.  
+Check out my GitHub profile [here](https://github.com/${answers.github}).
+`;
+};
 
-  // Render the template with the user's answers
-  const renderedTemplate = ejs.render(templateContent, answers);
-
-  // Convert markdown to HTML for the Table of Contents
-  const tocHtml = marked(renderedTemplate)
-    .replace(/<h(\d) id="(.*?)">(.*?)<\/h\d>/g, (match, level, id, text) => {
-      return `<li><a href="#${id}">${text}</a></li>`;
-    });
-
-  // Add the Table of Contents to the rendered template
-  const finalTemplate = renderedTemplate.replace(/<!--toc-->/, tocHtml);
-
-  // Create a badge for the chosen license
-  const badge = createBadge(answers.license);
-
-  // Add the badge to the top of the README
-  const readmeContent = `${badge}\n\n${finalTemplate}`;
-
-  // Write the README to the appropriate location in the project directory
-  const readmeFile = path.join(__dirname, 'README.md');
-  await writeFile(readmeFile, readmeContent);
-
-  console.log('README.md file created successfully!');
-}
+promptUser()
+  .then((answers) => writeFileAsync('README.md', generateMarkdown (answers)))
+  .then(() => 
+    // log a success message to the console
+    console.log('README.md file successfully created!'))
+  .catch((err) => console.error('Error generating README file:', err));
